@@ -4,215 +4,575 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FraudGuard AI - Standalone Demo</title>
+    <title>FraudGuard AI - Secure Terminal</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+
+    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        glass: 'rgba(255, 255, 255, 0.05)',
+                        'glass-border': 'rgba(255, 255, 255, 0.1)',
+                        'glass-hover': 'rgba(255, 255, 255, 0.1)',
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         body {
             background-color: #020617;
             color: #f8fafc;
-            font-family: sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-input {
+            background: rgba(2, 6, 23, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .glass-input:focus {
+            background: rgba(2, 6, 23, 0.8);
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
 
-<body class="min-h-screen p-6 md:p-12">
+<body class="min-h-screen relative overflow-hidden selection:bg-indigo-500/30">
 
-    <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <header class="mb-10 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="p-3 bg-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20">
-                    <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+    <!-- Ambient Background -->
+    <div class="fixed inset-0 z-0">
+        <div
+            class="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob">
+        </div>
+        <div
+            class="absolute top-0 -right-4 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000">
+        </div>
+        <div
+            class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000">
+        </div>
+    </div>
+
+    <!-- Login View -->
+    <div id="view-login" class="relative z-10 min-h-screen flex items-center justify-center p-6">
+        <div class="w-full max-w-md glass-card rounded-2xl p-8 animate-slide-up">
+            <div class="text-center mb-8">
+                <div
+                    class="inline-flex p-3 rounded-xl bg-indigo-500/20 mb-4 ring-1 ring-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+                    <i data-lucide="shield-check" class="w-8 h-8 text-indigo-400"></i>
+                </div>
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                    FraudGuard AI</h1>
+                <p class="text-slate-400 text-sm mt-2">Enterprise Fraud Detection System</p>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Access
+                        ID</label>
+                    <div class="relative">
+                        <i data-lucide="user"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="email" value="admin@fraudguard.ai"
+                            class="glass-input w-full rounded-lg py-2.5 pl-10 pr-4 text-sm" placeholder="ID">
+                    </div>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-bold tracking-tight text-white">FraudGuard AI</h1>
-                    <p class="text-slate-400">Real-time Financial Anomaly Detection (Standalone Demo)</p>
-                </div>
-            </div>
-            <div class="text-right">
-                <div
-                    class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-medium animate-pulse">
-                    ● System Operational
-                </div>
-            </div>
-        </header>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg">
-                <p class="text-slate-400 text-sm font-medium uppercase">Total Transactions</p>
-                <h3 id="stat-total" class="text-2xl font-bold mt-2 text-white">0</h3>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg">
-                <p class="text-slate-400 text-sm font-medium uppercase">Fraud Detected</p>
-                <h3 id="stat-fraud" class="text-2xl font-bold mt-2 text-white">0</h3>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg">
-                <p class="text-slate-400 text-sm font-medium uppercase">Legit Transactions</p>
-                <h3 id="stat-legit" class="text-2xl font-bold mt-2 text-white">0</h3>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg">
-                <p class="text-slate-400 text-sm font-medium uppercase">Fraud Rate</p>
-                <h3 id="stat-rate" class="text-2xl font-bold mt-2 text-white">0.00%</h3>
-            </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-lg flex items-center gap-4 mb-6">
-            <div class="flex-1">
-                <h3 class="text-white font-semibold">Simulation Control</h3>
-                <p class="text-slate-400 text-sm">Manage the synthetic transaction stream.</p>
-            </div>
-            <div class="flex gap-2">
-                <button id="btn-start" onclick="startSim()"
-                    class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-all">
-                    <i data-lucide="play" class="w-4 h-4"></i> Start Stream
-                </button>
-                <button id="btn-stop" onclick="stopSim()"
-                    class="hidden flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-all">
-                    <i data-lucide="square" class="w-4 h-4"></i> Stop Stream
-                </button>
-                <button onclick="injectFraud()"
-                    class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-all">
-                    <i data-lucide="zap" class="w-4 h-4"></i> Inject Fraud Effect
-                </button>
-            </div>
-        </div>
-
-        <!-- Feed -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2">
-                <div
-                    class="bg-slate-900 border border-slate-800 rounded-xl shadow-lg overflow-hidden flex flex-col h-[500px]">
-                    <div class="p-4 border-b border-slate-800 bg-slate-900/50">
-                        <h2 className="text-lg font-semibold text-white">Live Transaction Stream</h2>
-                    </div>
-                    <div class="overflow-y-auto flex-1 p-0">
-                        <table class="w-full text-left border-collapse">
-                            <thead
-                                class="bg-slate-950 sticky top-0 z-10 text-xs uppercase text-slate-400 font-semibold">
-                                <tr>
-                                    <th class="p-4">Status</th>
-                                    <th class="p-4">ID</th>
-                                    <th class="p-4">Amount</th>
-                                    <th class="p-4">Location</th>
-                                    <th class="p-4">Time</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tx-table-body" class="divide-y divide-slate-800/50">
-                                <!-- Rows will be injected here -->
-                            </tbody>
-                        </table>
+                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Secure
+                        Key</label>
+                    <div class="relative">
+                        <i data-lucide="lock"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="password" value="password123"
+                            class="glass-input w-full rounded-lg py-2.5 pl-10 pr-4 text-sm" placeholder="KEY">
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-white mb-4">Model Logic (Simulated)</h3>
-                <div class="space-y-4">
-                    <div class="bg-slate-800/50 p-4 rounded-lg">
-                        <p class="text-sm text-slate-300">This standalone demo uses JavaScript to simulate the Python
-                            backend.</p>
-                        <ul class="mt-4 space-y-2 text-sm text-slate-400 list-disc list-inside">
-                            <li>Generating random global payments</li>
-                            <li>Evaluating against threshold rules</li>
-                            <li>Simulating network latency</li>
-                        </ul>
-                    </div>
-                </div>
+                <button type="submit"
+                    class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium py-2.5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 group">
+                    <span>Initialize System</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-slate-700/50 text-center">
+                <p class="text-xs text-slate-500 flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i>
+                    Secure Connection Established
+                </p>
             </div>
         </div>
     </div>
 
+    <!-- Dashboard View (Hidden by default) -->
+    <div id="view-dashboard" class="hidden relative z-10 min-h-screen p-4 md:p-8 animate-fade-in">
+
+        <!-- Dashboard Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 glass-card p-4 rounded-xl">
+            <div class="flex items-center gap-4">
+                <div class="p-2 bg-indigo-500/20 rounded-lg">
+                    <i data-lucide="activity" class="w-6 h-6 text-indigo-400"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-white">Live Monitor</h2>
+                    <p class="text-xs text-slate-400 font-mono">SESSION: <span class="text-indigo-400">FG-8821X</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex flex-col items-end mr-4">
+                    <span class="text-xs text-slate-400">System Status</span>
+                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                        <span class="relative flex h-2 w-2">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        OPERATIONAL
+                    </span>
+                </div>
+                <button onclick="logout()"
+                    class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-slate-400 hover:text-white"
+                    title="Logout">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Main Content Area (8 cols) -->
+            <div class="lg:col-span-8 space-y-6">
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass-card p-4 rounded-xl">
+                        <p class="text-xs text-slate-400 uppercase font-medium mb-1">Total Vol</p>
+                        <h3 id="stat-total" class="text-xl md:text-2xl font-bold text-white font-mono">0</h3>
+                        <div class="h-1 w-full bg-slate-700/50 mt-2 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 w-full animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-emerald-500/20 bg-emerald-900/10">
+                        <p class="text-xs text-emerald-400/70 uppercase font-medium mb-1">Legit</p>
+                        <h3 id="stat-legit" class="text-xl md:text-2xl font-bold text-emerald-400 font-mono">0</h3>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-red-500/20 bg-red-900/10">
+                        <p class="text-xs text-red-400/70 uppercase font-medium mb-1">Fraud</p>
+                        <h3 id="stat-fraud" class="text-xl md:text-2xl font-bold text-red-400 font-mono">0</h3>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl">
+                        <p class="text-xs text-slate-400 uppercase font-medium mb-1">Risk Rate</p>
+                        <h3 id="stat-rate" class="text-xl md:text-2xl font-bold text-white font-mono">0.0%</h3>
+                        <div id="risk-bar" class="h-1 w-0 bg-red-500 mt-2 rounded-full transition-all duration-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Chart -->
+                <div class="glass-card p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                            <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-400"></i>
+                            Transaction Velocity
+                        </h3>
+                        <span class="text-xs px-2 py-1 rounded bg-slate-800 text-slate-400 font-mono">Live 1s
+                            Interval</span>
+                    </div>
+                    <div class="h-[250px] w-full">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Transaction Feed -->
+                <div class="glass-card rounded-xl overflow-hidden flex flex-col h-[400px]">
+                    <div class="p-4 border-b border-slate-700/50 bg-slate-800/30 flex justify-between items-center">
+                        <h3 class="text-sm font-semibold text-white">Incoming Stream</h3>
+                        <div class="flex gap-2">
+                            <button id="btn-start" onclick="startSim()"
+                                class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+                                <i data-lucide="play" class="w-3 h-3"></i> Start
+                            </button>
+                            <button id="btn-stop" onclick="stopSim()"
+                                class="hidden px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+                                <i data-lucide="pause" class="w-3 h-3"></i> Stop
+                            </button>
+                            <button onclick="injectFraud()"
+                                class="px-3 py-1 bg-red-600 hover:bg-red-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+                                <i data-lucide="zap" class="w-3 h-3"></i> Attack
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scrollbar p-0">
+                        <table class="w-full text-left border-collapse">
+                            <thead
+                                class="bg-slate-900/50 sticky top-0 z-10 text-[10px] uppercase text-slate-400 font-semibold backdrop-blur-md">
+                                <tr>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">TX ID</th>
+                                    <th class="p-3 text-right">Amount</th>
+                                    <th class="p-3">Origin</th>
+                                    <th class="p-3 text-right">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tx-table-body" class="divide-y divide-slate-700/30 text-sm">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sidebar (4 cols) -->
+            <div class="lg:col-span-4 space-y-6">
+
+                <!-- Distribution Chart -->
+                <div class="glass-card p-6 rounded-xl">
+                    <h3 class="text-sm font-semibold text-white mb-4">Threat Distribution</h3>
+                    <div class="h-[200px] flex items-center justify-center relative">
+                        <canvas id="donutChart"></canvas>
+                        <!-- Center Text -->
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="text-center">
+                                <p class="text-xs text-slate-500 uppercase">Detection</p>
+                                <p class="text-lg font-bold text-white">AI-Active</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Panel -->
+                <div class="glass-card p-6 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i data-lucide="cpu" class="w-24 h-24 text-indigo-500"></i>
+                    </div>
+                    <h3 class="text-sm font-semibold text-white mb-4">AI Model Diagnostics</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Anomaly Confidence</span>
+                                <span class="text-emerald-400">98.2%</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-500 w-[98%]"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">Processing Latency</span>
+                                <span class="text-blue-400">12ms</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500 w-[15%]"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                <span class="text-indigo-400 font-semibold">> SYSTEM READY</span><br>
+                                Isolation Forest model loaded.<br>
+                                Monitoring global payment gateway.<br>
+                                Awaiting data stream...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
     <script>
-        // Icons
+        // --- Init Icons ---
         lucide.createIcons();
 
-        // State
-        let stats = { total: 0, fraud: 0 };
-        let isRunning = false;
-        let intervalId = null;
-        const customers = Array.from({ length: 100 }, (_, i) => `CUST_${i}`);
-        const countries = ["US", "UK", "DE", "FR", "IN", "JP", "CN", "BR", "AU", "CA"];
-        const currencies = ["USD", "GBP", "EUR", "INR", "JPY", "CNY", "BRL", "AUD", "CAD"];
+        // --- Global State ---
+        let state = {
+            isRunning: false,
+            intervalId: null,
+            stats: { total: 0, fraud: 0 },
+            chartData: {
+                labels: [],
+                total: [],
+                fraud: []
+            }
+        };
 
-        function updateStats() {
-            document.getElementById('stat-total').innerText = stats.total;
-            document.getElementById('stat-fraud').innerText = stats.fraud;
-            document.getElementById('stat-legit').innerText = stats.total - stats.fraud;
-            const rate = stats.total > 0 ? ((stats.fraud / stats.total) * 100).toFixed(2) : "0.00";
-            document.getElementById('stat-rate').innerText = rate + "%";
+        const COUNTRIES = ["US", "UK", "DE", "FR", "IN", "JP", "CN", "BR"];
+        const CURRENCIES = { "US": "USD", "UK": "GBP", "DE": "EUR", "IN": "INR", "JP": "JPY" };
+
+        // --- Charts instances ---
+        let mainChart = null;
+        let donutChart = null;
+
+        // --- Navigation ---
+        function handleLogin(e) {
+            e.preventDefault();
+            // Mock Login Transition
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Authenticating...`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                document.getElementById('view-login').classList.add('hidden');
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                initCharts();
+            }, 1000);
         }
 
-        function addRow(tx) {
-            const tbody = document.getElementById('tx-table-body');
-            const row = document.createElement('tr');
-            row.className = `transition-colors hover:bg-slate-800/30 ${tx.is_fraud ? 'bg-red-900/10' : ''}`;
-
-            const amountClass = tx.is_fraud ? 'text-red-400' : 'text-slate-200';
-            const badge = tx.is_fraud
-                ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">FRAUD</span>'
-                : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LEGIT</span>';
-
-            row.innerHTML = `
-                <td class="p-4">${badge}</td>
-                <td class="p-4 font-mono text-xs text-slate-500 truncate max-w-[100px]">${tx.id.split('-')[0]}...</td>
-                <td class="p-4 font-bold ${amountClass}">${tx.currency} ${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                <td class="p-4 text-slate-300">${tx.location}</td>
-                <td class="p-4 text-slate-400 text-sm">${new Date().toLocaleTimeString()}</td>
-            `;
-
-            tbody.insertBefore(row, tbody.firstChild);
-            if (tbody.children.length > 50) tbody.removeChild(tbody.lastChild);
+        function logout() {
+            stopSim();
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-login').classList.remove('hidden');
+            state = { isRunning: false, intervalId: null, stats: { total: 0, fraud: 0 }, chartData: { labels: [], total: [], fraud: [] } };
+            resetUI();
         }
 
+        // --- Chart Config ---
+        function initCharts() {
+            // Main Line Chart
+            const ctx1 = document.getElementById('mainChart').getContext('2d');
+
+            const gradient1 = ctx1.createLinearGradient(0, 0, 0, 300);
+            gradient1.addColorStop(0, 'rgba(99, 102, 241, 0.4)'); // Indigo
+            gradient1.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+            mainChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: Array(10).fill(''),
+                    datasets: [{
+                        label: 'Transactions',
+                        data: Array(10).fill(0),
+                        borderColor: '#818cf8',
+                        backgroundColor: gradient1,
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b' }
+                        }
+                    },
+                    animation: { duration: 0 }
+                }
+            });
+
+            // Donut Chart
+            const ctx2 = document.getElementById('donutChart').getContext('2d');
+            donutChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Legit', 'Fraud'],
+                    datasets: [{
+                        data: [1, 0], // Start with dummy data
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function updateCharts(isFraud) {
+            if (!mainChart || !donutChart) return;
+
+            // Update Line Chart (simulate trend)
+            const prev = mainChart.data.datasets[0].data[mainChart.data.datasets[0].data.length - 1];
+            const newVal = prev + Math.floor(Math.random() * 5) + 1;
+
+            mainChart.data.labels.push(new Date().toLocaleTimeString());
+            mainChart.data.datasets[0].data.push(newVal);
+
+            if (mainChart.data.labels.length > 20) {
+                mainChart.data.labels.shift();
+                mainChart.data.datasets[0].data.shift();
+            }
+            mainChart.update();
+
+            // Update Donut
+            const legitCount = state.stats.total - state.stats.fraud;
+            const fraudCount = state.stats.fraud;
+            donutChart.data.datasets[0].data = [legitCount, fraudCount];
+            donutChart.update();
+        }
+
+        // --- Logic ---
         function generateTransaction(forceFraud = false) {
             const is_fraud = forceFraud || Math.random() < 0.05;
-
-            let amount, country, currency;
-
-            if (is_fraud) {
-                amount = Math.random() * 45000 + 5000; // 5k - 50k
-                country = countries[Math.floor(Math.random() * countries.length)];
-                currency = currencies[Math.floor(Math.random() * currencies.length)];
-            } else {
-                amount = Math.random() * 990 + 10; // 10 - 1000
-                country = Math.random() > 0.3 ? "US" : countries[Math.floor(Math.random() * countries.length)];
-                currency = country === "US" ? "USD" : currencies[Math.floor(Math.random() * currencies.length)];
-            }
+            const country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+            const currency = CURRENCIES[country] || "USD";
+            const amount = is_fraud
+                ? (Math.random() * 50000 + 5000)
+                : (Math.random() * 800 + 20);
 
             const tx = {
-                id: crypto.randomUUID(),
+                id: crypto.randomUUID().split('-')[0].toUpperCase(),
                 amount: amount,
                 currency: currency,
                 location: country,
-                is_fraud: is_fraud
+                is_fraud: is_fraud,
+                time: new Date().toLocaleTimeString()
             };
 
-            // Update stats
-            stats.total++;
-            if (is_fraud) stats.fraud++;
+            // Update State
+            state.stats.total++;
+            if (is_fraud) state.stats.fraud++;
 
-            updateStats();
-            addRow(tx);
+            updateUI(tx);
+            updateCharts(is_fraud);
         }
 
+        function updateUI(tx) {
+            // Stats
+            document.getElementById('stat-total').innerText = state.stats.total;
+            document.getElementById('stat-fraud').innerText = state.stats.fraud;
+            document.getElementById('stat-legit').innerText = state.stats.total - state.stats.fraud;
+
+            const rate = state.stats.total > 0
+                ? ((state.stats.fraud / state.stats.total) * 100).toFixed(1)
+                : "0.0";
+            document.getElementById('stat-rate').innerText = rate + "%";
+            document.getElementById('risk-bar').style.width = Math.min(rate * 10, 100) + "%";
+
+            // Table
+            const tbody = document.getElementById('tx-table-body');
+            const row = document.createElement('tr');
+            row.className = `border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors ${tx.is_fraud ? 'bg-red-500/10' : ''}`;
+
+            const badge = tx.is_fraud
+                ? '<span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-500 border border-red-500/30">FRAUD</span>'
+                : '<span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-500 border border-emerald-500/30">CLEAN</span>';
+
+            const amountColor = tx.is_fraud ? 'text-red-400' : 'text-slate-300';
+
+            row.innerHTML = `
+                <td class="p-3">${badge}</td>
+                <td class="p-3 font-mono text-xs text-slate-500">#${tx.id}</td>
+                <td class="p-3 text-right font-mono font-medium ${amountColor}">${tx.currency} ${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td class="p-3 text-xs text-slate-400 flex items-center gap-1">
+                    <img src="https://flagcdn.com/16x12/${tx.location.toLowerCase()}.png" class="w-4 h-3 rounded-sm opacity-80">
+                    ${tx.location}
+                </td>
+                <td class="p-3 text-right text-xs text-slate-500 font-mono">${tx.time}</td>
+            `;
+
+            tbody.insertBefore(row, tbody.firstChild);
+            if (tbody.children.length > 20) tbody.removeChild(tbody.lastChild);
+        }
+
+        function resetUI() {
+            document.getElementById('tx-table-body').innerHTML = '';
+            document.getElementById('stat-total').innerText = '0';
+            document.getElementById('stat-fraud').innerText = '0';
+            document.getElementById('stat-legit').innerText = '0';
+        }
+
+        // --- Controls ---
         function startSim() {
-            if (isRunning) return;
-            isRunning = true;
+            if (state.isRunning) return;
+            state.isRunning = true;
             document.getElementById('btn-start').classList.add('hidden');
             document.getElementById('btn-stop').classList.remove('hidden');
 
-            intervalId = setInterval(() => {
-                generateTransaction();
-            }, 1500);
+            state.intervalId = setInterval(() => generateTransaction(), 1200);
         }
 
         function stopSim() {
-            isRunning = false;
-            clearInterval(intervalId);
+            state.isRunning = false;
+            clearInterval(state.intervalId);
             document.getElementById('btn-start').classList.remove('hidden');
             document.getElementById('btn-stop').classList.add('hidden');
         }
@@ -220,6 +580,7 @@
         function injectFraud() {
             generateTransaction(true);
         }
+
     </script>
 </body>
 

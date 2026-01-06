@@ -1,9 +1,9 @@
-Write-Host "Starting simple static file server at http://localhost:8080"
+Write-Host "Starting simple static file server at http://localhost:8085"
 Write-Host "Press Ctrl+C to stop."
 
 $path = "$PSScriptRoot"
 $http = [System.Net.HttpListener]::new()
-$http.Prefixes.Add("http://localhost:8080/")
+$http.Prefixes.Add("http://localhost:8085/")
 $http.Start()
 
 while ($http.IsListening) {
@@ -21,7 +21,8 @@ while ($http.IsListening) {
         $response.ContentLength64 = $content.Length
         $response.OutputStream.Write($content, 0, $content.Length)
         Write-Host "Served: $filename" -ForegroundColor Green
-    } else {
+    }
+    else {
         $response.StatusCode = 404
         Write-Host "404 Not Found: $filename" -ForegroundColor Red
     }
